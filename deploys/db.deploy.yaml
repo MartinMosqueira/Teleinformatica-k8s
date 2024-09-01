@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: db
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: db
+    spec:
+      containers:
+      - image: mysql:9.0.1
+        name: metabase-db
+        resources: {}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db.secret
+              key: db-password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: db.secret
+              key: db-name
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/mysql/conf.d/my-mysql.cnf
+          subPath: my-mysql.cnf
+      volumes:
+      - name: config-volume
+        configMap:
+          name: mysql-config
+status: {}
